@@ -1,0 +1,5 @@
+=======================
+Django Rating Changelog
+=======================
+
+No releases made yet. 
