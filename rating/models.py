@@ -59,6 +59,9 @@ class RatedItem(models.Model):
         self.save()
         return self
 
+    def get_average(self):
+        return '%.1f' % self.rate_average
+
     def save(self):
         if not self.id:
             self.rate_count = 0

@@ -1,5 +1,6 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.template.loader import get_template
 
 
 from rating.models import *
@@ -45,41 +46,37 @@ def do_get_rating(parser, token):
     return GetRatingNode(object_name=tokens[2], var_name=tokens[4])
 
 
-class RateLinkNode(template.Node):
-    def __init__(self, object_name, rate):
-        self.object_name, self.rate = object_name, rate
+class RateFormNode(template.Node):
+    def __init__(self, object_name):
+        self.object_name = object_name
 
     def render(self, context):
         object = template.resolve_variable(self.object_name, context)
         ctype_id, obj_id = get_target_for_object(object)
-        return 'rate/?target=%(ct_id)s:%(obj_id)s&rate=%(rate)s' % \
-                                                           {'ct_id': ctype_id,
-                                                            'obj_id': obj_id,
-                                                            'rate': self.rate}
+        t = get_template('rating/rating_form.html')
+        c = context
+        c.update({'ctype_id': ctype_id, 'obj_id': obj_id})
+        return t.render(c)
+                                                 
 
 
-@register.tag('rate_link')
-def do_rate_link(parser, token):
+@register.tag('rating_form')
+def do_rating_form(parser, token):
     """
     Syntax::
 
-        {% rate_link for [object] [rate] %}
+        {% rate_form for [object] %}
 
     Example usage::
 
-        {% rate_link for program 2 %}
+        {% rate_form for program %}
 
     """
     tokens = token.contents.split()
     tag_name = tokens[0]
-    if len(tokens) != 4:
-        raise template.TemplateSyntaxError, '%r tag requires 4 arguments' % tag_name
+    if len(tokens) != 3:
+        raise template.TemplateSyntaxError, '%r tag requires 3 arguments' % tag_name
     if tokens[1] != 'for':
         raise template.TemplateSyntaxError, "%r tag's second " \
                                             "argument must be 'for'" % tag_name
-    try:
-        rate = int(tokens[3])
-    except ValueError:
-        raise template.TemplateSyntaxError, "%r tag's third " \
-                                            "argument must be an integer" % tag_name
-    return RateLinkNode(object_name=tokens[2], rate=rate)
+    return RateFormNode(object_name=tokens[2])

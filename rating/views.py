@@ -1,17 +1,14 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponse
 
 from rating.models import RatedItem
 
 
 # FIXME return a HttpResponse...
 def rate(request):
-    if request.method == 'POST':
-        dict = request.POST
-    else:
-        dict = request.GET
     try:
-        target, rate = dict['target'], dict['rate']
+        target, rate = request.POST['target'], request.POST['rate']
     except KeyError:
         raise Http404, 'falto param'
     content_type_id, object_id = target.split(':')
@@ -20,3 +17,4 @@ def rate(request):
     except ObjectDoesNotExist:
         raise Http404, 'target vieno mal'
     rated_item = RatedItem.objects.add_rate(object, rate, request.user)
+    return HttpResponse('', mimetype='text/plain')
