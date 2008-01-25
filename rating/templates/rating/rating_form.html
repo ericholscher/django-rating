@@ -1,0 +1,14 @@
+<div id="ratingdiv">
+  <form id="rating" action="/rating/rate/" method="post" title="Average: {% if rating %}{{ rating.get_average }}{% else %}0{% endif %}">
+    <label for="id_rating">Rating:</label>
+    <select name="rate" id="id_rating">
+      <option value="1">1 - Poor</option>
+      <option value="2">2 - Fair</option>
+      <option value="3">3 - Good</option>
+      <option value="4">4 - Very Good</option>
+      <option value="5">5 - Excellent</option>
+    </select>
+    <input type="hidden" name="target" value="{{ ctype_id }}:{{ obj_id }}" />
+    <input type="submit" value="Submit rating" />
+  </form>
+</div>
