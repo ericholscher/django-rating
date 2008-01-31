@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from rating.models import RatedItem
 
