@@ -65,11 +65,11 @@ def do_rating_form(parser, token):
     """
     Syntax::
 
-        {% rate_form for [object] %}
+        {% rating_form for [object] %}
 
     Example usage::
 
-        {% rate_form for program %}
+        {% rating_form for program %}
 
     """
     tokens = token.contents.split()
