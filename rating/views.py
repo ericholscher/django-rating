@@ -1,11 +1,11 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 
 from rating.models import RatedItem
 
-
-# FIXME return a HttpResponse...
+@login_required
 def rate(request):
     try:
         target, rate = request.POST['target'], request.POST['rate']
@@ -17,4 +17,4 @@ def rate(request):
     except ObjectDoesNotExist:
         raise Http404, 'target vieno mal'
     rated_item = RatedItem.objects.add_rate(object, rate, request.user)
-    return HttpResponse('', mimetype='text/plain')
+    return HttpResponseRedirect(object.get_absolute_url())

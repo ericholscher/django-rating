@@ -8,18 +8,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
-
-# FloatField was renamed to DecimalField in r5302.
-try:
-    from django.db.models import FloatField as DecimalField
-except ImportError:
-    from django.db.models import DecimalField
-
-# Generic relations were moved in r5172
-try:
-    from django.contrib.contenttypes import generic
-except ImportError:
-    import django.db.models as generic
+from django.db.models import DecimalField
+from django.contrib.contenttypes import generic
 
 from rating.managers import RatedItemManager, RateManager
 
@@ -29,8 +19,7 @@ class RatedItem(models.Model):
     Rate info for an object.
 
     """
-    rate_average = DecimalField(_('rating average'), max_digits=7,
-                                decimal_places=2)
+    rate_average = models.IntegerField(_('rating average'))
     rate_count = models.PositiveIntegerField(_('rating count'))
 
     last_rated_on = models.DateTimeField(_('last rate on'), editable=False,
@@ -52,7 +41,11 @@ class RatedItem(models.Model):
 
     def add_rate(self, value, user):
         now = datetime.datetime.now()
-        self.rates.create(rated_object=self, rate=value, user=user, date=now)
+        value = int(value)
+        rate, created = self.rates.get_or_create(rated_object=self, user=user)
+        rate.rate = value
+        rate.date = now
+        rate.save()
         self.rate_count += 1
         self.rate_average = Rate.objects.rate_average(self.object)
         self.last_rate_on = now
@@ -62,11 +55,11 @@ class RatedItem(models.Model):
     def get_average(self):
         return '%.1f' % self.rate_average
 
-    def save(self):
+    def save(self, force_insert=False, force_update=False):
         if not self.id:
             self.rate_count = 0
             self.rate_average = 0
-        super(RatedItem, self).save()
+        super(RatedItem, self).save(force_insert, force_update)
 
 
 class Rate(models.Model):
@@ -77,12 +70,12 @@ class Rate(models.Model):
     rated_object = models.ForeignKey('RatedItem', related_name='rates')
     user = models.ForeignKey(User, verbose_name=_('user'), null=True,
                              blank=True)
-    rate = models.PositiveSmallIntegerField(_('rating value'))
+    rate = models.PositiveSmallIntegerField(_('rating value'), null=True)
     date = models.DateTimeField(_('rated on'), editable=False)
 
     objects = RateManager()
 
-    def save(self):
+    def save(self, force_insert=False, force_update=False):
         if not self.id:
             self.date = datetime.datetime.now()
-        super(Rate, self).save()
+        super(Rate, self).save(force_insert, force_update)
