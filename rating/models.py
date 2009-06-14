@@ -51,6 +51,10 @@ class RatedItem(models.Model):
         self.rate_average = Rate.objects.rate_average(self.object)
         self.last_rate_on = now
         self.save()
+        obj = self.object
+        if hasattr(obj, 'rating'):
+            obj.rating = self.rate_average
+            obj.save()
         return self
 
     def get_average(self):
