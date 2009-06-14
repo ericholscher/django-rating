@@ -19,7 +19,7 @@ class RatedItem(models.Model):
     Rate info for an object.
 
     """
-    rate_average = models.IntegerField(_('rating average'))
+    rate_average = models.FloatField(_('rating average'))
     rate_count = models.PositiveIntegerField(_('rating count'))
 
     last_rated_on = models.DateTimeField(_('last rate on'), editable=False,
@@ -42,6 +42,7 @@ class RatedItem(models.Model):
     def add_rate(self, value, user):
         now = datetime.datetime.now()
         value = int(value)
+        #Allow only 1 vote per user
         rate, created = self.rates.get_or_create(rated_object=self, user=user)
         rate.rate = value
         rate.date = now
