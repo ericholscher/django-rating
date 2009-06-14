@@ -54,6 +54,11 @@ class RatedItem(models.Model):
         obj = self.object
         if hasattr(obj, 'rating'):
             obj.rating = self.rate_average
+            denormed = True
+        if hasattr(obj, 'rating_total'):
+            obj.rating_total = self.rate_count
+            denormed = True
+        if denormed:
             obj.save()
         return self
 
