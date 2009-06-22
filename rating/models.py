@@ -47,7 +47,8 @@ class RatedItem(models.Model):
         rate.rate = value
         rate.date = now
         rate.save()
-        self.rate_count += 1
+        if created:
+            self.rate_count += 1
         self.rate_average = Rate.objects.rate_average(self.object)
         self.last_rate_on = now
         self.save()
