@@ -53,6 +53,7 @@ class RatedItem(models.Model):
         self.last_rate_on = now
         self.save()
         obj = self.object
+        denormed = False
         if hasattr(obj, 'rating'):
             obj.rating = self.rate_average
             denormed = True
